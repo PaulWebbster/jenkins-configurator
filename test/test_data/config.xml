@@ -1,0 +1,116 @@
+<project>
+  <actions />
+  <description />
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>30</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>10</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.21">
+      <autoRebuild>false</autoRebuild>
+    </com.sonyericsson.rebuild.RebuildSettings>
+  </properties>
+  <scm class="hudson.scm.SubversionSCM" plugin="subversion@2.4.3">
+    <locations>
+      <hudson.scm.SubversionSCM_-ModuleLocation>
+        <remote>https://wrisop30.emea.nsn-net.net/isource/svnroot/BTS_SC_L2/branches/maintenance/fb14_11</remote>
+        <local>.</local>
+        <depthOption>infinity</depthOption>
+        <ignoreExternalsOption>false</ignoreExternalsOption>
+      </hudson.scm.SubversionSCM_-ModuleLocation>
+    </locations>
+    <browser class="hudson.scm.browsers.ViewSVN">
+      <url>http://wrisop30.emea.nsn-net.net/viewvc/BTS_SC_L2/</url>
+    </browser>
+    <excludedRegions />
+    <includedRegions />
+    <excludedUsers />
+    <excludedRevprop />
+    <excludedCommitMessages />
+    <workspaceUpdater class="hudson.scm.subversion.UpdateUpdater" />
+    <ignoreDirPropChanges>false</ignoreDirPropChanges>
+    <filterChangelog>false</filterChangelog>
+  </scm>
+  <assignedNode>!wrlinb49</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers />
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.31">
+      <project>TUPU_1411_DCM_SVN_commit_detector</project>
+      <filter>j_environment.txt</filter>
+      <target>$WORKSPACE</target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector" />
+      <flatten>true</flatten>
+      <doNotFingerprintArtifacts>false</doNotFingerprintArtifacts>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.tasks.Shell>
+      <command>make clean
+make TUPu_TLDA_linux TUPu_TLDA_windows
+
+#$WORKSPACE/lteDo/exec/redhat/release/TUPuHbViewer -b $WORKSPACE/.logs/1452_tupu_hb_fast.bin 2&gt;&amp;1 | tee $WORKSPACE/.logs/1452_tupu_hb_fast.log
+#script_exit_code="${PIPESTATUS[0]}"
+#[ "${script_exit_code}" -ne "0" ] &amp;&amp; exit ${script_exit_code}
+#egrep '[cC]orrupted' $WORKSPACE/.logs/1452_tupu_hb_fast.log &amp;&amp; echo "HB corrupted! Test failed!" &amp;&amp; exit 99
+
+exit 0
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>lteDo/exec/redhat/release/TUPuHbViewer, lteDo/exec/mxe32/release/TUPuHbViewer, .logs/1452_tupu_hb_fast.bin, j_environment.txt</artifacts>
+      <allowEmptyArchive>false</allowEmptyArchive>
+      <onlyIfSuccessful>false</onlyIfSuccessful>
+      <fingerprint>false</fingerprint>
+      <defaultExcludes>true</defaultExcludes>
+    </hudson.tasks.ArtifactArchiver>
+    <hudson.tasks.Fingerprinter>
+      <targets>lteDo/exec/redhat/release/TUPuHbViewer, lteDo/exec/mxe32/release/TUPuHbViewer, .logs/1452_tupu_hb_fast.bin, j_environment.txt</targets>
+      <recordBuildArtifacts>false</recordBuildArtifacts>
+    </hudson.tasks.Fingerprinter>
+    <hudson.tasks.Mailer plugin="mailer@1.11">
+      <recipients />
+      <dontNotifyEveryUnstableBuild>true</dontNotifyEveryUnstableBuild>
+      <sendToIndividuals>true</sendToIndividuals>
+    </hudson.tasks.Mailer>
+    <hudson.plugins.emailext.ExtendedEmailPublisher plugin="email-ext@2.38.2">
+      <recipientList>szymon.cichy@nsn.com, przemyslaw.kalinowski@nsn.com, sebastian.szczecina@nsn.com, tomasz.kluba@nsn.com, slawomir.gajewski@nsn.com, marcin.gudajczyk@nsn.com, marcin.iwaniuk@nsn.com</recipientList>
+      <configuredTriggers>
+        <hudson.plugins.emailext.plugins.trigger.FailureTrigger>
+          <email>
+            <recipientList />
+            <subject>$PROJECT_DEFAULT_SUBJECT</subject>
+            <body>$PROJECT_DEFAULT_CONTENT
+
+$BUILD_LOG, True</body>
+            <recipientProviders>
+              <hudson.plugins.emailext.plugins.recipients.ListRecipientProvider />
+            </recipientProviders>
+            <attachmentsPattern />
+            <attachBuildLog>false</attachBuildLog>
+            <compressBuildLog>false</compressBuildLog>
+            <replyTo />
+            <contentType>project</contentType>
+          </email>
+        </hudson.plugins.emailext.plugins.trigger.FailureTrigger>
+      </configuredTriggers>
+      <contentType>default</contentType>
+      <defaultSubject>$DEFAULT_SUBJECT</defaultSubject>
+      <defaultContent>$DEFAULT_CONTENT</defaultContent>
+      <attachmentsPattern />
+      <presendScript />
+      <attachBuildLog>false</attachBuildLog>
+      <compressBuildLog>false</compressBuildLog>
+      <replyTo />
+      <saveOutput>false</saveOutput>
+    </hudson.plugins.emailext.ExtendedEmailPublisher>
+  </publishers>
+  <buildWrappers />
+</project>
